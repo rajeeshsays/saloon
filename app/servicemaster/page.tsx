@@ -2,36 +2,43 @@
 'use client';
 
 import { Card, Input, Select, Button } from "../components/common";
-import { getAllServiceMaster,createMaster } from "../apiservice/api-service-servicemaster";  
-import { useEffect, useState } from "react";
+import { getAllServiceMasters,createMaster,updateMaster, deleteMaster,searchMaster} from "../apiservice/api-service-servicemaster";  
+import { ReactNode, useEffect, useState } from "react";
 import { ServiceMaster } from "../types/type";
 import { create } from "domain";
+import { AnyARecord } from "dns";
+import '@fortawesome/fontawesome-free/css/all.min.css'
 
-const services = [
-  { id: 1, code: "S001", name: "Haircut", rate: 100, status: "Active" },
-  { id: 2, code: "S002", name: "Beard Trim", rate: 50, status: "Active" },
-  { id: 3, code: "S003", name: "Shave", rate: 75, status: "Inactive" }
-];
 
 let _serviceMasters: ServiceMaster[] = [];
+let _serviceMaster: ServiceMaster = {
+  serviceMasterId: 0,
+  serviceCode: "",
+  serviceName: "",
+  description: "",
+  price: 0,
+  rate: 0,
+  isActive: true,
+  createdAt: new Date()
+};
 
 export default function Page() {
 const [serviceMasters, setServiceMasters] = useState(_serviceMasters);
-const [formData, setFormData] = useState({
-  serviceCode: "",
-  serviceName: "",
-  rate: 0,
-  isActive: true
-});
+const [formData, setFormData] = useState(_serviceMaster);
 
 useEffect(() => {
-getAllServiceMaster().then(data => {console.log(data)
+  console.log("Fetching service masters...");
+  getAllServiceMasters().then(data => {
+    console.log("jjj" + data);
+    setServiceMasters(data);
+  }).catch(err => console.error(err));
+}, []);
 
 
+useEffect(() => {
 
-
-}).catch(err => console.error(err));
-},[]);
+  console.log("Service Masters updated:", serviceMasters);
+}, [serviceMasters]);
 
 
 function createServiceMaster() {
@@ -47,7 +54,7 @@ function createServiceMaster() {
   }).then(data => {
     console.log("Created:", data);
     // Optionally refresh the list after creation
-    return getAllServiceMaster();
+    return getAllServiceMasters();
   }).then(data => {
     setServiceMasters(data);
     alert("Service Master created successfully!");
@@ -56,10 +63,54 @@ function createServiceMaster() {
 }
 
 function updateServiceMaster() {
-  // Implement update logic here
+  updateMaster(formData).then(data => {
+    console.log("Updated:", data);
+    // Optionally refresh the list after update
+    return getAllServiceMasters();
+  }).then(data => {
+    setServiceMasters(data);
+    alert("Service Master updated successfully!");
+  }).catch(err => console.error(err));    
 }
 
 function deleteServiceMaster() {
+  deleteMaster(formData.serviceMasterId).then(data => {
+    console.log("Deleted:", data);
+    // Optionally refresh the list after deletion
+    return getAllServiceMasters();
+  }).then(data => {
+    setServiceMasters(data);
+    alert("Service Master deleted successfully!");
+  }).catch(err => console.error(err));  
+  // Implement delete logic here
+}
+
+function searchServiceMaster() {
+  searchMaster(formData.serviceName).then(data => {
+    console.log("Searched:", data);
+    setServiceMasters(data);
+  }).catch(err => console.error(err));  
+  // Implement search logic here  
+}
+
+function editServiceMaster(serviceMasterId : number) {
+  alert("You are now editing this service master. Make changes and click update to save.");
+  serviceMasters.filter((item) => item.serviceMasterId === serviceMasterId).map((item) => {
+    setFormData(item);
+  });
+
+}
+
+function trashServiceMaster(serviceMasterId : number) {
+  alert("Are you sure you want to delete this service master?");
+  deleteMaster(serviceMasterId).then(data => {
+    console.log("Deleted:", data);
+    // Optionally refresh the list after deletion
+    return getAllServiceMasters();
+  }).then(data => {
+    setServiceMasters(data);
+    alert("Service Master deleted successfully!");
+  }).catch(err => console.error(err));  
   // Implement delete logic here
 }
 
@@ -71,20 +122,20 @@ function deleteServiceMaster() {
           label="Service Code" 
           placeholder="Enter service code" 
           value={formData.serviceCode}
-          onChange={(e) => setFormData({...formData, serviceCode: e.target.value})}
+          onChange={(e : any) => setFormData({...formData, serviceCode: e.target.value})}
         />
         <Input 
           label="Service Name" 
           placeholder="Enter service name" 
           value={formData.serviceName}
-          onChange={(e) => setFormData({...formData, serviceName: e.target.value})}
+          onChange={(e : any) => setFormData({...formData, serviceName: e.target.value})}
         />
         <Input 
           label="Rate" 
           type="number" 
           placeholder="Enter rate" 
           value={formData.rate}
-          onChange={(e) => setFormData({...formData, rate: Number(e.target.value)})}
+          onChange={(e : any) => setFormData({...formData, rate: Number(e.target.value)})}
         />
 
         <Select label="Status">
@@ -94,7 +145,11 @@ function deleteServiceMaster() {
       </div>
 
       <div className="flex gap-3 mb-6">
-        <Button onClick={() => {}}>Save</Button>
+        <Button onClick={createServiceMaster}>Save</Button>
+        
+        <Button onClick={searchServiceMaster}>Search</Button>
+        <Button onClick={updateServiceMaster}>Update</Button>
+        <Button onClick={deleteServiceMaster}>Delete</Button>
         <Button className="bg-slate-500 hover:bg-slate-600">Clear</Button>
       </div>
 
@@ -120,6 +175,13 @@ function deleteServiceMaster() {
                     {item.isActive ? "Active" : "Inactive"}
                   </span>
                 </td>
+                <td className="px-4 py-3">
+           
+                  <button onClick={()=>editServiceMaster(item.serviceMasterId)}><i className="fas fa-edit"></i></button>
+                  <button onClick={()=>trashServiceMaster(item.serviceMasterId)}><i className="fas fa-trash"></i></button>
+                 
+                  </td>
+
               </tr>
             ))}
           </tbody>

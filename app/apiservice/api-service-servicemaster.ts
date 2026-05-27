@@ -1,6 +1,6 @@
 import { ServiceMaster } from "../types/type";
 
-const getAllServiceMaster = async () => {
+const getAllServiceMasters = async () => {
   const response = await fetch("http://localhost:5118/api/servicemasters/getAll");
   const data = await response.json();
   return data;
@@ -41,4 +41,26 @@ const deleteMaster = async (serviceMasterId: number) => {
   return data;
 };
 
-export { getAllServiceMaster, createMaster, updateMaster, deleteMaster };
+const searchMaster = async (serviceName: string) => {
+  const response = await fetch(`http://localhost:5118/api/servicemasters/getbyname/${serviceName}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  const data = await response.json();
+  return data;
+};
+const getMasterById = async (serviceMasterId: number) => {
+  const response = await fetch(`http://localhost:5118/api/servicemasters/getMasterById/${serviceMasterId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  const data = await response.json();
+  return data;
+};
+
+
+export { getAllServiceMasters, createMaster, updateMaster, deleteMaster, searchMaster, getMasterById };

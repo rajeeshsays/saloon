@@ -12,9 +12,23 @@ export interface ServiceMaster {
 
 export interface ServiceEntry {
   serviceEntryId: number;
-  voucherNo: string;
-  entryDate: Date;
   customerName: string;
-  totalAmount: number;
+  mobileNumber?: string | null;
+  entryDate: Date;
+  serviceItems : ServiceItem[];
+  remarks?: string | null;  
 }
+
+
+
+export interface ServiceItem {
+  serviceItemId: number;
+  serviceMasterId: number;
+  discount: number;
+  netAmount: number;
+  serviceEntryId: number;
+  serviceMaster : ServiceMaster | null;
+  remarks?: string | null;
+
+   }
 
