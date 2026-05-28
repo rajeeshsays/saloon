@@ -32,3 +32,11 @@ export interface ServiceItem {
 
    }
 
+export interface ServiceFormdata {
+  serviceEntryId: number;
+  customerName: string;
+  mobileNumber?: string | null;
+  entryDate: Date;
+  serviceItem : ServiceItem;
+  remarks?: string | null;  
+}
