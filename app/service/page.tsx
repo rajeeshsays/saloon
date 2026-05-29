@@ -84,6 +84,7 @@ const[formData, setFormData] = useState(_serviceFormdata);
 const[serviceMasters, setServiceMasters] = useState<ServiceMaster[]>([]);
 const[serviceItems, setServiceItems] = useState(_serviceItems);
 const[serviceItem, setServiceItem] = useState(_serviceItem);
+const[editingItemId, setEditingItemId] = useState<number | null>(null);
 
 useEffect(() => {
   console.log("Fetching service masters ...");
@@ -129,30 +130,24 @@ useEffect(() => {
   }
 
   function editServiceItem(id: number) {
+   console.log("Editing service item with ID: " + id);
+   console.log("Current service items: " + JSON.stringify(serviceItems));
 
-   let serviceItem = serviceItems.filter((item) => item.serviceItemId !== id);
-    if(serviceItem.length > 0) {    
-
-      setFormData(prev=>({
-        ...prev,
-        serviceItem: serviceItem[0]
-      }));
-    }
+   let _serviceItems = serviceItems.filter((item) => item.serviceItemId == id);
+    if(_serviceItems.length > 0) {    
+     console.log("Service item found: " + JSON.stringify(_serviceItems[0]));
+      console.log("Service Item"+ JSON.stringify(_serviceItems[0]));
+      setServiceItem(_serviceItems[0]);
       
+    }
+    setEditingItemId(id);
+
   }
+  function updateServiceItem() {
   
-function updateServiceItem(id: number) {  
-let _serviceMaster = serviceMasters.filter((master) => master.serviceMasterId === serviceItem?.serviceMasterId)[0];
-setServiceItems((prev: any) => [...prev,{
-  serviceEntryId: serviceItem?.serviceEntryId,
-  serviceItemId: id,
-  discount: serviceItem?.discount,
-  netAmount: serviceItem?.netAmount,
-  serviceMasterId: serviceItem?.serviceMasterId,
-  serviceMaster: _serviceMaster,
-  remarks: serviceItem?.remarks
-}]);
-  };
+    setServiceItems(prev=> [...prev,serviceItem]);
+    setEditingItemId(null);
+  }
 
   //Service Item Operations
 
@@ -169,7 +164,7 @@ setServiceItems((prev: any) => [...prev,{
    console.log(_serviceMaster.serviceName);
    setServiceItems((prev: any) => [...prev,{
       serviceEntryId: 0,
-      serviceItemId: 0,
+      serviceItemId: serviceItems.length > 0 ? Math.max(...serviceItems.map((item) => item.serviceItemId)) + 1 : 1,
       discount: serviceItem?.discount,
       netAmount: serviceItem?.netAmount,
       serviceMasterId: _serviceMasterId,
@@ -249,7 +244,7 @@ const changeDiscount = () => (e: CE) => {
 
 
       <div className="flex gap-3 mb-6">
-        <Button onClick={()=> serviceItem?.serviceItemId === 0 ? addServiceItem() : updateServiceItem(serviceItem?.serviceItemId)}>Save Item</Button>
+        <Button onClick={()=> editingItemId === null ? addServiceItem() : updateServiceItem()}>Save Item</Button>
         <Button className="bg-slate-500 hover:bg-slate-600" onClick={() => clearServiceItem()}>Clear</Button>
       </div>
 
@@ -275,16 +270,16 @@ const changeDiscount = () => (e: CE) => {
           <tbody>
            
             { serviceItems.filter((item) => item.serviceMasterId !== 0).map((item,index) => (
-   
+                
               <tr key={index} className="border-t border-slate-200 hover:bg-slate-50">
-                 
+                
                 <td className="px-4 py-3">{item.serviceMaster?.serviceName}</td>
                 <td className="px-4 py-3">{item.serviceMaster?.rate}</td>
                 <td className="px-4 py-3">{item.discount}</td>
                 <td className="px-4 py-3 text-right">₹ {item.netAmount}</td>
                        <td className="px-4 py-3">
-                  <button ><i className="fas fa-edit"></i></button>
-                  <button ><i className="fas fa-trash"></i></button>
+                  <button onClick={() => editServiceItem(item.serviceItemId)}><i className="fas fa-edit"></i></button>
+                  <button onClick={() => deleteServiceItem(item.serviceItemId)}><i className="fas fa-trash"></i></button>
                 </td>
               </tr>
             ))}
