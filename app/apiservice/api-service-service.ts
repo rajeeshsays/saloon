@@ -1,4 +1,4 @@
-import { ServiceEntry } from "../types/type";
+import { ServiceFormdata } from "../types/type";
 
 const getAllEntries = async () => {
   const response = await fetch("http://localhost:5118/api/serviceentries/getAllServiceEntries");
@@ -6,7 +6,7 @@ const getAllEntries = async () => {
   return data;
 };
 
-const createEntry = async (serviceEntry: ServiceEntry) => {
+const createEntry = async (serviceEntry: ServiceFormdata) => {
   const response = await fetch("http://localhost:5118/api/serviceentries/createEntry", {
     method: "POST",
     headers: {
@@ -18,7 +18,7 @@ const createEntry = async (serviceEntry: ServiceEntry) => {
   return data;
 };
 
-const updateEntry = async (serviceEntry: ServiceEntry) => {
+const updateEntry = async (serviceEntry: ServiceFormdata) => {
   const response = await fetch("http://localhost:5118/api/serviceentries/updateEntry", {
     method: "PUT",
     headers: {

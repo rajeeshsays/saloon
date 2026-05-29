@@ -10,7 +10,7 @@ export interface ServiceMaster {
   createdAt: Date;
 }
 
-export interface ServiceEntry {
+export interface ServiceFormdata {
   serviceEntryId: number;
   customerName: string;
   mobileNumber?: string | null;
@@ -27,16 +27,8 @@ export interface ServiceItem {
   discount: number;
   netAmount: number;
   serviceEntryId: number;
-  serviceMaster : ServiceMaster | null;
+  serviceMaster : ServiceMaster ;
   remarks?: string | null;
 
    }
 
-export interface ServiceFormdata {
-  serviceEntryId: number;
-  customerName: string;
-  mobileNumber?: string | null;
-  entryDate: Date;
-  serviceItem : ServiceItem;
-  remarks?: string | null;  
-}
