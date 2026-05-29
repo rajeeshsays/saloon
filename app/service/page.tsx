@@ -64,7 +64,7 @@ const createEmptyServiceItem = (): ServiceItem => ({
   netAmount: 0,
   serviceMasterId: 0,
   serviceMaster:  {
-    serviceMasterId: 1,
+    serviceMasterId: 0,
     serviceCode: "",
     serviceName: "",
     description: "",
@@ -179,7 +179,7 @@ setServiceItems((prev: any) => [...prev,{
     
     console.log("Service item added: " + JSON.stringify(serviceItem));
   
-    setServiceItem({} as ServiceItem);
+    setServiceItem(_serviceItem);
   }
 useEffect(() => {
   console.log("Service items updated: " + JSON.stringify(serviceItems));
@@ -206,26 +206,41 @@ const changeDiscount = () => (e: CE) => {
   setServiceItem(prev => ({...prev, discount: parseFloat(e.target.value) || 0, netAmount}));
   
   };
+  const clearFormData = () => {
+    setFormData(_serviceFormdata);
+    setServiceItem(_serviceItem);
+    setServiceItems(_serviceItems);
+  };
+  const clearServiceItem = () => {
+    
+    setServiceItem(_serviceItem);
+
+  };
 
   return (
     <div>
     <Card title="Add Service ">
       <Button onClick={() => createServiceEntry()}>Save Service</Button>
-        <Button className="bg-slate-500 hover:bg-slate-600">Clear</Button>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-        <Input label="Customer Name" placeholder="Enter customer name" onChange={(e : CE ) => setFormData({...formData, customerName: e.target.value})} />
-        <Input label="Mobile Number" type="number" placeholder="Enter mobile number" onChange={(e : CE) => setFormData({...formData, mobileNumber: e.target.value})} />
-        <Input label="Remarks" placeholder="Enter remarks" onChange={(e : CE ) => setFormData({...formData, remarks: e.target.value})} />
+
+        <Button className="bg-slate-500 hover:bg-slate-600" onClick={() => clearFormData()} >Clear</Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <Input label="Customer Name" placeholder="Enter customer name" value={formData.customerName} onChange={(e : CE ) => setFormData({...formData, customerName: e.target.value})} />
+        <Input label="Mobile Number" type="number" placeholder="Enter mobile number" value={formData.mobileNumber} onChange={(e : CE) => setFormData({...formData, mobileNumber: e.target.value})} />
+        <Input label="Remarks" placeholder="Enter remarks" value={formData.remarks} onChange={(e : CE ) => setFormData({...formData, remarks: e.target.value})} />
+        <Input label="Entry Date" type="date" value={new Date(formData.entryDate).toISOString().split("T")[0]}
+              onChange={(e : any) => setFormData({...formData,entryDate: new Date(e.target.value)})} />
       </div>
        <Card title="Service Entry">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-        <Input label="Entry Date" type="date" onChange={(e : CE ) => setFormData({...formData, entryDate: new Date(e.target.value)})} />
+
 
         <Select label="Service Type" onChange={(e : CE) => handleServiceMasterChange(e)} value = {serviceItem?.serviceMasterId}>
+            <option value={0}>Select Service</option>
           {serviceMasters.map((master) => (
             <option key={master.serviceMasterId} value={master.serviceMasterId}>{master.serviceName}</option>
           ))}
         </Select>
+        
         <Input label="Rate" type="number" placeholder="Enter rate" value={serviceItem?.serviceMaster?.rate || ""} onChange={(e : CE) => setServiceItem({...serviceItem, discount: parseFloat(e.target.value) || 0})} />
         <Input label="Discount" type="number" placeholder="Enter discount" value={serviceItem?.discount || ""} onChange={changeDiscount()} />
         <Input label="Amount" type="number" placeholder="Enter amount" value={serviceItem?.netAmount || ""} onChange={(e : CE) => setServiceItem((prev)=>({...prev, netAmount: parseFloat(e.target.value) || 0}))} />
@@ -235,7 +250,7 @@ const changeDiscount = () => (e: CE) => {
 
       <div className="flex gap-3 mb-6">
         <Button onClick={()=> serviceItem?.serviceItemId === 0 ? addServiceItem() : updateServiceItem(serviceItem?.serviceItemId)}>Save Item</Button>
-        <Button className="bg-slate-500 hover:bg-slate-600">Clear</Button>
+        <Button className="bg-slate-500 hover:bg-slate-600" onClick={() => clearServiceItem()}>Clear</Button>
       </div>
 
 
@@ -249,6 +264,7 @@ const changeDiscount = () => (e: CE) => {
           <thead className="bg-slate-100 text-slate-700">
             <tr>
               <th className="text-left px-4 py-3">Service</th>
+              <th className="text-left px-4 py-3">Rate</th>
               <th className="text-left px-4 py-3">Discount</th>
               <th className="text-right px-4 py-3">NetAmount</th>
               <th className="text-left px-4 py-3">Remarks</th>
@@ -258,11 +274,12 @@ const changeDiscount = () => (e: CE) => {
 
           <tbody>
            
-            { serviceItems.map((item,index) => (
-              
+            { serviceItems.filter((item) => item.serviceMasterId !== 0).map((item,index) => (
+   
               <tr key={index} className="border-t border-slate-200 hover:bg-slate-50">
                  
                 <td className="px-4 py-3">{item.serviceMaster?.serviceName}</td>
+                <td className="px-4 py-3">{item.serviceMaster?.rate}</td>
                 <td className="px-4 py-3">{item.discount}</td>
                 <td className="px-4 py-3 text-right">₹ {item.netAmount}</td>
                        <td className="px-4 py-3">
