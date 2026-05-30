@@ -138,30 +138,38 @@ useEffect(() => {
      console.log("Service item found: " + JSON.stringify(_serviceItems[0]));
       console.log("Service Item"+ JSON.stringify(_serviceItems[0]));
       setServiceItem(_serviceItems[0]);
-      
     }
     setEditingItemId(id);
+  }
 
-  }
-  function updateServiceItem() {
-  
-    setServiceItems(prev=> [...prev,serviceItem]);
-    setEditingItemId(null);
-  }
+
+
+
 
   //Service Item Operations
 
 
 
-  function addServiceItem() {
+  function saveServiceItem(
+  ) {
+        console.log("Updating service item with ID: " + editingItemId);
+    console.log("Current service items: " + JSON.stringify(serviceItems));
    console.log("Adding service item...");
    console.log(serviceItems); 
    console.log(serviceMasters.filter((master) => master.serviceMasterId === serviceItem?.serviceMasterId));
    let _serviceMasterId = serviceItem.serviceMasterId === 0 ? 1 : serviceItem?.serviceMasterId;
    console.log("_serviceMasterId" + _serviceMasterId);
    let _serviceMaster = serviceMasters.filter((master) => master.serviceMasterId === _serviceMasterId)[0];
-   console.log("_serviceMaster" + JSON.stringify(_serviceMaster));
+
    console.log(_serviceMaster.serviceName);
+
+   if(editingItemId) {
+    console.log("Editing existing item with ID: " + editingItemId);
+    setServiceItems(serviceItems.map((item) => item.serviceItemId === editingItemId ? serviceItem : item));
+    setEditingItemId(null);
+    return;
+   }
+   
    setServiceItems((prev: any) => [...prev,{
       serviceEntryId: 0,
       serviceItemId: serviceItems.length > 0 ? Math.max(...serviceItems.map((item) => item.serviceItemId)) + 1 : 1,
@@ -176,6 +184,7 @@ useEffect(() => {
   
     setServiceItem(_serviceItem);
   }
+
 useEffect(() => {
   console.log("Service items updated: " + JSON.stringify(serviceItems));
 }, [serviceItems]);
@@ -201,11 +210,13 @@ const changeDiscount = () => (e: CE) => {
   setServiceItem(prev => ({...prev, discount: parseFloat(e.target.value) || 0, netAmount}));
   
   };
+
   const clearFormData = () => {
     setFormData(_serviceFormdata);
     setServiceItem(_serviceItem);
     setServiceItems(_serviceItems);
   };
+
   const clearServiceItem = () => {
     
     setServiceItem(_serviceItem);
@@ -244,7 +255,8 @@ const changeDiscount = () => (e: CE) => {
 
 
       <div className="flex gap-3 mb-6">
-        <Button onClick={()=> editingItemId === null ? addServiceItem() : updateServiceItem()}>Save Item</Button>
+        <pre>{editingItemId}</pre>
+        <Button onClick={()=> {console.log("ins"+editingItemId); saveServiceItem()}}>Save Item</Button>  
         <Button className="bg-slate-500 hover:bg-slate-600" onClick={() => clearServiceItem()}>Clear</Button>
       </div>
 
